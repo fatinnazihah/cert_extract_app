@@ -1,3 +1,5 @@
+from urllib import request
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -5,6 +7,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import shutil
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 import utils
 
 # --- SETUP ---
@@ -27,7 +32,8 @@ app.add_middleware(
 # --- WEB ---
 @app.get("/", response_class=HTMLResponse)
 async def serve_admin_panel(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    #  Fixed syntax (keyword arguments)
+    return templates.TemplateResponse(request=request, name="index.html")
 
 # --- COLLECTIONS ---
 @app.get("/api/collections")
@@ -168,7 +174,13 @@ async def save_record(
             qr_link
         )
 
-        return {"status": "success", "web_link": qr_link}
+        # Return all URLs needed by index.html batch table
+        return {
+            "status": "success",
+            "web_link": qr_link,
+            "pdf_url": pdf_url,
+            "qr_image_url": qr_image_url
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
