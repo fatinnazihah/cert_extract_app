@@ -32,6 +32,7 @@
         border-color: #4b5563;
         color: #e5e7eb;
       }
+      /* Custom Scrollbars */
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -85,6 +86,16 @@
         </div>
 
         <div class="flex items-center gap-1 sm:gap-3">
+          <!-- Persistent Reopen Batch Modal Button -->
+          <button
+            id="btnFloatingBatch"
+            onclick="openBatchReview()"
+            class="hidden bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow transition flex items-center gap-1.5"
+          >
+            <i class="fas fa-list-check"></i>
+            <span id="floatingBatchText">Batch Results</span>
+          </button>
+
           <button
             onclick="switchTab('dashboard')"
             id="btn-dashboard"
@@ -507,7 +518,7 @@
         </div>
       </div>
 
-      <!-- ENTRY DETAIL MODAL -->
+      <!-- ENTRY DETAIL MODAL (z-50) -->
       <div
         id="detailModal"
         class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center z-50 p-4"
@@ -518,7 +529,7 @@
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-base sm:text-lg font-bold">Equipment Details</h3>
             <button
-              onclick="closeModal('detailModal')"
+              onclick="closeDetailModal()"
               class="text-gray-400 hover:text-gray-600 p-1"
             >
               <i class="fas fa-times text-lg"></i>
@@ -633,10 +644,10 @@
         </div>
       </div>
 
-      <!-- BATCH REVIEW RESULTS MODAL (Exact 6-Column Match) -->
+      <!-- BATCH REVIEW RESULTS MODAL (z-40) -->
       <div
         id="batchReviewModal"
-        class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center z-50 p-3 sm:p-6"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center z-40 p-3 sm:p-6"
       >
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col p-4 sm:p-6"
@@ -693,7 +704,7 @@
         </div>
       </div>
 
-      <!-- FULLSCREEN LOADER -->
+      <!-- FULLSCREEN LOADER (z-50) -->
       <div
         id="loading"
         class="fixed inset-0 bg-white/90 dark:bg-gray-900/90 hidden flex flex-col items-center justify-center z-50 p-4 transition-colors"
@@ -721,6 +732,7 @@
       let rawData = [];
       let currentCollectionName = "";
       let batchResults = [];
+      let openedFromBatch = false; // Tracks if detail modal was triggered from batch review
 
       // --- Theme Handling ---
       function initTheme() {
@@ -1075,7 +1087,7 @@
               ? new Date(item.last_updated).toLocaleDateString()
               : "-";
             return `
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition border-b border-gray-100 dark:border-gray-700 cursor-pointer" onclick="showDetails(${safeItem})">
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition border-b border-gray-100 dark:border-gray-700 cursor-pointer" onclick="showDetails(${safeItem}, false)">
                 <td class="px-4 py-2.5 font-bold text-gray-900 dark:text-white">${item.serial || "-"}</td>
                 <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 truncate max-w-[150px]">${item.model || "-"}</td>
                 <td class="px-4 py-2.5">
@@ -1100,8 +1112,10 @@
           .join("");
       }
 
-      function showDetails(item) {
+      function showDetails(item, fromBatch = false) {
+        openedFromBatch = fromBatch;
         currentCollectionName = item.collection || currentCollectionName;
+
         document.getElementById("detSerial").value = item.serial || "";
         document.getElementById("detModel").value = item.model || "";
         document.getElementById("detCal").value =
@@ -1126,6 +1140,16 @@
         document.getElementById("detailModal").classList.remove("hidden");
       }
 
+      function closeDetailModal() {
+        document.getElementById("detailModal").classList.add("hidden");
+        // If opened from batch review, ensure batch modal remains in front
+        if (openedFromBatch) {
+          document
+            .getElementById("batchReviewModal")
+            .classList.remove("hidden");
+        }
+      }
+
       async function updateEntry() {
         if (!currentCollectionName) return;
         const serial = document.getElementById("detSerial").value;
@@ -1142,7 +1166,7 @@
         try {
           await axios.post(`${API}/api/update_record`, fd);
           alert("Record successfully updated.");
-          closeModal("detailModal");
+          closeDetailModal();
           loadCollection(currentCollectionName);
         } catch (e) {
           alert("Update failed: " + e.message);
@@ -1164,7 +1188,7 @@
 
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
-          loadingText.innerText = `[${i + 1}/${selectedFiles.length}] Scanning ${file.name}...`;
+          loadingText.innerText = `[${i + 1}/${selectedFiles.length}] Extracting ${file.name}...`;
 
           try {
             const extractFd = new FormData();
@@ -1221,6 +1245,15 @@
         }
 
         loader.classList.add("hidden");
+
+        // Show persistent floating button
+        if (batchResults.length > 0) {
+          const floatingBtn = document.getElementById("btnFloatingBatch");
+          floatingBtn.classList.remove("hidden");
+          document.getElementById("floatingBatchText").innerText =
+            `Batch (${batchResults.length})`;
+        }
+
         openBatchReview();
       }
 
@@ -1236,7 +1269,7 @@
             .map((item) => {
               const safeItem = JSON.stringify(item).replace(/"/g, "&quot;");
               return `
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" onclick="showDetails(${safeItem})">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" onclick="showDetails(${safeItem}, true)">
                   <td class="px-3 py-2.5 font-bold">${item.serial || "-"}</td>
                   <td class="px-3 py-2.5 text-gray-500">${item.model || "-"}</td>
                   <td class="px-3 py-2.5">${item.cal || "-"}</td>
@@ -1279,7 +1312,7 @@
 
         if (selectedFiles.length > 1) {
           alert(
-            "Manual save requires exactly ONE PDF file attached. Please remove extra files or use 'Auto-Extract All Attached PDFs with AI' for batch processing.",
+            "Manual save requires exactly ONE PDF file attached. Please remove extra files or use 'Auto-Extract Attached PDFs with AI' for batch processing.",
           );
           return;
         }

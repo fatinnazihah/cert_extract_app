@@ -154,15 +154,35 @@ def split_pdf_to_pages(original_path):
         return []
 
 def ocr_extract_page(file_path, page_idx):
-    """Fallback extraction that works natively on standard Render Python runtimes."""
-    ocr_text = ""
-    
-    # 1. Attempt Tesseract if available
+    """
+    Fast extraction pipeline:
+    1. Digital Text First (Instant, 0.02s): Uses pdfplumber layout mode.
+    2. OCR Fallback (Only for scanned PDFs): If digital text is missing/sparse (<30 chars),
+       renders at 180 DPI and runs Tesseract.
+    """
+    extracted_text = ""
+
+    # STEP 1: Fast native layout extraction (Instant)
+    try:
+        import pdfplumber
+        with pdfplumber.open(file_path) as pdf:
+            if page_idx < len(pdf.pages):
+                extracted_text = (pdf.pages[page_idx].extract_text(layout=True) or "").strip()
+    except Exception as e:
+        print(f"⚠️ Native text extraction error on page {page_idx + 1}: {e}")
+
+    # If digital text exists, return immediately without touching CPU-heavy OCR
+    if len(extracted_text) >= 30:
+        return extracted_text
+
+    # STEP 2: Only run OCR if page is a scanned image (text < 30 chars)
+    print(f"🔍 Scanned page detected (text sparse). Running Tesseract OCR on Page {page_idx + 1}...")
     try:
         pdf = pdfium.PdfDocument(file_path)
         try:
             page = pdf.get_page(page_idx)
-            bitmap = page.render(scale=300 / 72)
+            # Render at 180 DPI (scale ≈ 2.5) instead of 300 DPI for 3x faster OCR speed on 0.1 CPU
+            bitmap = page.render(scale=180 / 72)
             pil_image = bitmap.to_pil()
         finally:
             pdf.close()
@@ -170,21 +190,14 @@ def ocr_extract_page(file_path, page_idx):
         gray = pil_image.convert("L")
         enhanced = ImageOps.autocontrast(gray, cutoff=2)
         ocr_text = pytesseract.image_to_string(enhanced, config=r"--oem 3 --psm 6").strip()
+
+        if len(ocr_text) > len(extracted_text):
+            extracted_text = ocr_text
+
     except Exception as err:
-        print(f"ℹ️ Tesseract binary not accessible on Render ({err}). Falling back to layout text extraction...")
+        print(f"⚠️ OCR processing failed on page {page_idx + 1}: {err}")
 
-    # 2. Extract digital layout text directly
-    if len(ocr_text.strip()) < 30:
-        try:
-            with pdfplumber.open(file_path) as pdf:
-                if page_idx < len(pdf.pages):
-                    native_text = (pdf.pages[page_idx].extract_text(layout=True) or "").strip()
-                    if len(native_text) > len(ocr_text):
-                        ocr_text = native_text
-        except Exception as native_err:
-            print(f"❌ Digital layout extraction failed on page {page_idx + 1}: {native_err}")
-
-    return ocr_text
+    return extracted_text
 
 def clean_extracted_items(items, pages_list, file_path, is_service):
     """Normalizes field values, target collections, and single-page file links."""
