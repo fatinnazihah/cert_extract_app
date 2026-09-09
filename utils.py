@@ -8,14 +8,15 @@ import tempfile
 from datetime import datetime
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import qrcode
 from pypdf import PdfReader, PdfWriter
-import pdfplumber
+import pypdfium2 as pdfium
+import pytesseract
 import firebase_admin
 from firebase_admin import credentials, firestore, storage, initialize_app, _apps
 
-# Load environment configuration from .env
+# Load environment variables from .env
 load_dotenv()
 
 # ==============================================================================
@@ -34,7 +35,7 @@ if GROQ_KEY:
 else:
     print("⚠️ GROQ_API_KEY is not defined in .env")
 
-# Priority list of Groq models to cascade through if a model 404s or hits limits
+# Priority list of Groq models to cascade through if a model hits rate limits
 GROQ_MODELS = [
     "qwen/qwen3.8-27b",
     "qwen/qwen3.6-27b",
@@ -43,7 +44,21 @@ GROQ_MODELS = [
     "groq/compound"
 ]
 
-# Use cross-platform temp directory (resolves Windows /tmp path errors)
+# Auto-detect Tesseract binary on Windows
+if os.name == 'nt':
+    possible_tesseract_paths = [
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe"),
+        os.path.expandvars(r"%USERPROFILE%\AppData\Local\Programs\Tesseract-OCR\tesseract.exe")
+    ]
+    for path in possible_tesseract_paths:
+        if os.path.exists(path):
+            pytesseract.pytesseract.tesseract_cmd = path
+            print(f"✅ Tesseract executable found: {path}")
+            break
+
+# Temporary storage paths
 BASE_TEMP_DIR = tempfile.gettempdir()
 QR_DIR = os.path.join(BASE_TEMP_DIR, "qrcodes")
 SPLIT_DIR = os.path.join(BASE_TEMP_DIR, "temp_split_certs")
@@ -51,18 +66,38 @@ SPLIT_DIR = os.path.join(BASE_TEMP_DIR, "temp_split_certs")
 for directory in [QR_DIR, SPLIT_DIR]:
     os.makedirs(directory, mode=0o777, exist_ok=True)
 
-# Schema extraction instructions for Groq
+# Extraction prompt specifically tuned for OCR certificate parsing
 EXTRACTION_PROMPT = """
-Analyze this safety certificate text. Identify every unique PPE or equipment item record.
-Return a valid JSON object with a key "items" containing a list of objects with these exact keys:
-- "serial": string (equipment serial number or ID)
-- "model": string (full brand/model description)
-- "cal": string (Inspection/Calibration Date in YYYY-MM-DD format)
-- "exp": string (Expiry Date in YYYY-MM-DD format)
-- "cert": string (Certificate No, stop after .SRV if present)
-- "lot": string (Report or Lot Number if present, else empty string)
-- "page": integer (1-indexed page number where this record appears)
-- "type": string (HARNESS, ABSORBER, GD, EEBD, SCBA, or SMOKE HOOD)
+You are an expert calibration and safety certificate extraction system.
+Analyze the provided OCR scanned text from a certificate page and extract all equipment/PPE records.
+
+Extract the following exact fields:
+- "serial": Equipment Serial Number, Tag No, Unit S/N, or ID (e.g., "224195", "9-573-26").
+- "model": Full Equipment / Model Name / Description (e.g., "MSA Altair 5X", "Honeywell MicroClip", "Harness").
+- "cal": Inspection / Calibration Date in YYYY-MM-DD format.
+- "exp": Expiry / Due Date in YYYY-MM-DD format.
+- "cert": Certificate Number / Report No (stop after .SRV if present).
+- "lot": Lot No, Batch No, or Job No if present (otherwise empty string "").
+- "page": The page number integer provided.
+- "type": Category name (Choose closest from: GD, EEBD, HARNESS, ABSORBER, SMOKE HOOD, SCBA, AREA MONITOR, RESCUE KIT).
+
+Return a valid JSON object with the key "items" containing a list of objects.
+Example:
+{
+  "items": [
+    {
+      "serial": "224195",
+      "model": "MSA Altair 5X Gas Detector",
+      "cal": "2026-06-05",
+      "exp": "2026-12-02",
+      "cert": "CHSB/CAL/2026/01.SRV",
+      "lot": "",
+      "page": 1,
+      "type": "GD"
+    }
+  ]
+}
+If no equipment record is present on this page, return {"items": []}.
 """
 
 # ==============================================================================
@@ -92,52 +127,79 @@ def get_firebase_db():
     return firestore.client(), storage.bucket() if FIREBASE_BUCKET_NAME else None
 
 # ==============================================================================
-# 3. PDF PROCESSING UTILITIES
+# 3. PDF & TESSERACT OCR UTILITIES
 # ==============================================================================
 def sanitize_filename(name):
     """Sanitizes file names by removing illegal operating system characters."""
     return re.sub(r'[\\/:"*?<>|]', "_", str(name)).strip()
 
 def split_pdf_to_pages(original_path):
-    """Physically extracts each page from a PDF so each database entry gets its own file."""
+    """Physically extracts each page from a PDF into a standalone PDF file."""
     page_paths = []
     try:
-        reader = PdfReader(original_path)
-        for i, page in enumerate(reader.pages):
-            output_filename = f"split_p{i + 1}_{int(time.time() * 1000)}.pdf"
-            output_path = os.path.join(SPLIT_DIR, output_filename)
-            writer = PdfWriter()
-            writer.add_page(page)
-            with open(output_path, "wb") as f:
-                writer.write(f)
-            page_paths.append((output_path, i + 1))
+        with open(original_path, "rb") as f:
+            reader = PdfReader(f)
+            total_pages = len(reader.pages)
+            for i in range(total_pages):
+                output_filename = f"split_p{i + 1}_{int(time.time() * 1000)}.pdf"
+                output_path = os.path.join(SPLIT_DIR, output_filename)
+                writer = PdfWriter()
+                writer.add_page(reader.pages[i])
+                with open(output_path, "wb") as out_f:
+                    writer.write(out_f)
+                page_paths.append((output_path, i + 1))
         return page_paths
     except Exception as e:
         print(f"❌ PDF Split Error: {e}")
         return []
 
-def extract_raw_text_from_pdf(file_path):
-    """Extracts raw text content across all pages for high-speed Groq LLM parsing."""
-    combined_text = []
+def ocr_extract_page(file_path, page_idx):
+    """
+    Renders PDF page to a 300 DPI PIL Image via pypdfium2 (no poppler required),
+    preprocesses contrast/grayscale, and runs Tesseract OCR.
+    """
+    ocr_text = ""
     try:
-        with pdfplumber.open(file_path) as pdf:
-            for idx, page in enumerate(pdf.pages):
-                text = page.extract_text() or ""
-                combined_text.append(f"--- START OF PAGE {idx + 1} ---\n{text}\n--- END OF PAGE {idx + 1} ---")
-        return "\n\n".join(combined_text)
-    except Exception as e:
-        print(f"❌ PDF Text Extraction Error: {e}")
-        return ""
+        # 1. Render PDF page to PIL Image in memory
+        pdf = pdfium.PdfDocument(file_path)
+        try:
+            page = pdf.get_page(page_idx)
+            # 300 DPI rendering (scale = 300 / 72 ≈ 4.166)
+            bitmap = page.render(scale=300 / 72)
+            pil_image = bitmap.to_pil()
+        finally:
+            pdf.close()
+
+        # 2. Image Pre-processing for optimal OCR text extraction
+        gray = pil_image.convert("L")
+        enhanced = ImageOps.autocontrast(gray, cutoff=2)
+
+        # 3. Run Tesseract with tabular/block segmentation (PSM 6)
+        try:
+            ocr_text = pytesseract.image_to_string(enhanced, config=r"--oem 3 --psm 6").strip()
+        except Exception:
+            # Fallback to default PSM 3 if PSM 6 fails
+            ocr_text = pytesseract.image_to_string(enhanced, config=r"--oem 3 --psm 3").strip()
+
+        # If OCR text is very short, try fallback on original image
+        if len(ocr_text) < 40:
+            fallback_text = pytesseract.image_to_string(pil_image, config=r"--oem 3 --psm 3").strip()
+            if len(fallback_text) > len(ocr_text):
+                ocr_text = fallback_text
+
+    except Exception as err:
+        print(f"❌ Tesseract OCR failed on page {page_idx + 1}: {err}")
+
+    return ocr_text
 
 def clean_extracted_items(items, pages_list, file_path, is_service):
-    """Normalizes field values, collections, and page file links across all extracted items."""
+    """Normalizes field values, target collections, and single-page file links."""
     cleaned_data = []
     for item in items:
-        # Match the extracted data to its split single-page PDF
         page_num = item.get("page", 1)
         item['local_split_path'] = next((p[0] for p in (pages_list or []) if p[1] == page_num), file_path)
         
-        # Stop certificate string after .SRV if present
+        # Strip trailing text after .SRV
         if item.get("cert") and ".SRV" in str(item["cert"]):
             item["cert"] = str(item["cert"]).split(".SRV")[0] + ".SRV"
             
@@ -147,37 +209,39 @@ def clean_extracted_items(items, pages_list, file_path, is_service):
     return cleaned_data
 
 # ==============================================================================
-# 4. GROQ-ONLY EXTRACTION ENGINE
+# 4. GROQ EXTRACTION ENGINE
 # ==============================================================================
-def extract_with_groq_cascade(raw_text, pages_list, file_path, is_service, model_index=0):
-    """Cascades through Groq models and safely cleans LLM JSON responses."""
-    if not groq_client:
-        raise ValueError("Groq client not initialized.")
-    
-    if model_index >= len(GROQ_MODELS):
-        raise ValueError("All Groq models exhausted.")
+def extract_single_page_text(page_text, page_number, model_index=0):
+    """Sends OCR scanned text to Groq for structured JSON mapping."""
+    if not groq_client or model_index >= len(GROQ_MODELS):
+        return []
 
     current_model = GROQ_MODELS[model_index]
-    print(f"⚡ --- Attempting Extraction with: Groq ({current_model}) ---")
+    
+    prompt = f"""
+{EXTRACTION_PROMPT}
+
+OCR Scanned Text from Page {page_number}:
+\"\"\"
+{page_text}
+\"\"\"
+"""
 
     try:
-        messages = [
-            {"role": "system", "content": "You are a data extraction assistant. Return pure raw JSON without formatting, markdown, or commentary."},
-            {"role": "user", "content": f"{EXTRACTION_PROMPT}\n\nDocument text content:\n{raw_text}"}
-        ]
-
         chat_completion = groq_client.chat.completions.create(
-            messages=messages,
+            messages=[
+                {"role": "system", "content": "You are a professional industrial certificate parsing system. You extract equipment metadata and return pure valid JSON only."},
+                {"role": "user", "content": prompt}
+            ],
             model=current_model,
+            max_tokens=750,
             response_format={"type": "json_object"}
         )
 
         raw_output = chat_completion.choices[0].message.content.strip()
-
-        # Remove <think>...</think> tags if present in Qwen output
+        
+        # Clean reasoning/thought blocks and markdown formatting
         raw_output = re.sub(r'<think>.*?</think>', '', raw_output, flags=re.DOTALL).strip()
-
-        # Strip markdown ```json code fences if present
         if raw_output.startswith("```"):
             raw_output = re.sub(r"^```(?:json)?", "", raw_output).rstrip("`").strip()
 
@@ -186,50 +250,72 @@ def extract_with_groq_cascade(raw_text, pages_list, file_path, is_service, model
         if isinstance(parsed, list):
             items = parsed
         elif isinstance(parsed, dict):
-            items = parsed.get("items", parsed.get("data", [parsed]))
+            items = parsed.get("items", parsed.get("data", parsed.get("records", [])))
+            # If the model returned a single object as the root dictionary
+            if not items and ("serial" in parsed or "model" in parsed):
+                items = [parsed]
         else:
             items = []
 
-        return clean_extracted_items(items, pages_list, file_path, is_service)
+        print(f"✅ Extracted {len(items)} record(s) from Page {page_number} via {current_model}.")
+        return items
 
     except Exception as e:
-        print(f"⚠️ Groq model '{current_model}' parse/exec failed: {e}. Trying next model...")
-        return extract_with_groq_cascade(raw_text, pages_list, file_path, is_service, model_index + 1)
+        print(f"⚠️ Page {page_number} failed on '{current_model}': {e}. Retrying next model...")
+        return extract_single_page_text(page_text, page_number, model_index + 1)
 
 def process_pdf_text(file_path, is_service=False, manual_type=None):
-    """Master workflow: Extracts text from PDF and parses via Groq cascade."""
+    """
+    Master workflow:
+    1. Splits PDF into standalone page files
+    2. Runs Tesseract OCR on every page
+    3. Sends OCR text to Groq for structured JSON parsing
+    4. Aggregates and returns all extracted records
+    """
     pages_list = split_pdf_to_pages(file_path)
     
     if not groq_client:
         return {
             "status": "failed", 
-            "error": "GROQ_API_KEY is missing or invalid. Please check your .env file.",
+            "error": "GROQ_API_KEY is missing or not configured in .env.",
             "can_manual": True,
             "temp_files": [{"page": p[1], "path": p[0]} for p in pages_list]
         }
 
     try:
-        raw_text = extract_raw_text_from_pdf(file_path)
-        if not raw_text.strip():
-            print("⚠️ PDF contains no extractable text. Please ensure the PDF has readable text layers.")
-            return {
-                "status": "failed",
-                "error": "PDF has no extractable text stream (scanned image).",
-                "can_manual": True,
-                "temp_files": [{"page": p[1], "path": p[0]} for p in pages_list]
-            }
+        all_items = []
+        with open(file_path, "rb") as f:
+            reader = PdfReader(f)
+            total_pages = len(reader.pages)
 
-        cleaned_data = extract_with_groq_cascade(raw_text, pages_list, file_path, is_service, model_index=0)
+        for idx in range(total_pages):
+            page_num = idx + 1
+            print(f"⚡ Running Tesseract OCR on Page {page_num}/{total_pages} for {os.path.basename(file_path)}...")
+            
+            ocr_text = ocr_extract_page(file_path, idx)
+            if not ocr_text.strip():
+                print(f"⚠️ Page {page_num} OCR returned no text.")
+                continue
+
+            print(f"📄 Page {page_num} OCR Sample: {ocr_text[:120].replace(chr(10), ' ')}...")
+            page_items = extract_single_page_text(ocr_text, page_num, model_index=0)
+            
+            for item in page_items:
+                item["page"] = page_num
+                all_items.append(item)
+
+        cleaned_data = clean_extracted_items(all_items, pages_list, file_path, is_service)
         if cleaned_data:
             return {"status": "success", "data": cleaned_data}
+        else:
+            print("⚠️ No structured records found in OCR output.")
 
     except Exception as e:
-        print(f"❌ Groq extraction failed completely: {e}")
+        print(f"❌ Extraction error on {file_path}: {e}")
 
-    # Fallback to Manual Entry Data Prep
     return {
         "status": "failed", 
-        "error": "Extraction failed across all Groq models. Please use manual entry.",
+        "error": "Extraction failed to find records. Please use manual entry.",
         "can_manual": True,
         "temp_files": [{"page": p[1], "path": p[0]} for p in pages_list]
     }
