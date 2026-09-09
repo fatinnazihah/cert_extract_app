@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
-        darkMode: 'class',
-      }
+        darkMode: "class",
+      };
     </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -37,27 +37,34 @@
       .modal-enter-active {
         opacity: 1;
         transform: scale(1);
-        transition: opacity 200ms, transform 200ms;
+        transition:
+          opacity 200ms,
+          transform 200ms;
       }
-      /* Custom scrollbar for dark mode nicer look */
+      /* Custom scrollbar for dark mode */
       .dark ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       .dark ::-webkit-scrollbar-track {
-        background: #1f2937; 
+        background: #1f2937;
       }
       .dark ::-webkit-scrollbar-thumb {
-        background: #4b5563; 
+        background: #4b5563;
         border-radius: 4px;
       }
       .dark ::-webkit-scrollbar-thumb:hover {
-        background: #6b7280; 
+        background: #6b7280;
       }
     </style>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 h-screen flex flex-col transition-colors duration-200">
-    <header class="bg-white dark:bg-gray-800 shadow-sm z-20 transition-colors duration-200">
+  <body
+    class="bg-gray-50 dark:bg-gray-900 h-screen flex flex-col transition-colors duration-200"
+  >
+    <!-- TOP NAVIGATION HEADER -->
+    <header
+      class="bg-white dark:bg-gray-800 shadow-sm z-20 transition-colors duration-200"
+    >
       <div
         class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"
       >
@@ -67,12 +74,15 @@
             alt="CHSB Logo"
             class="h-10 w-auto"
           />
-          <h1 class="text-xl font-bold text-gray-800 dark:text-white tracking-tight">
+          <h1
+            class="text-xl font-bold text-gray-800 dark:text-white tracking-tight"
+          >
             CHSB Cert Extractor
             <span
               class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded ml-2"
-              >Admin</span
             >
+              Admin
+            </span>
           </h1>
         </div>
         <div class="flex gap-4 items-center">
@@ -90,9 +100,8 @@
           >
             Add / Upload
           </button>
-          
-          <button 
-            onclick="toggleTheme()" 
+          <button
+            onclick="toggleTheme()"
             class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition ml-2"
             title="Toggle Dark Mode"
           >
@@ -103,7 +112,9 @@
     </header>
 
     <main class="flex-1 max-w-7xl mx-auto w-full p-6 overflow-hidden">
+      <!-- TAB 1: DASHBOARD VIEW -->
       <div id="tab-dashboard" class="h-full flex gap-6">
+        <!-- Collection Folders Sidebar -->
         <div
           class="w-64 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 h-full flex flex-col transition-colors duration-200"
         >
@@ -116,21 +127,29 @@
           ></div>
         </div>
 
+        <!-- Collection Table Details -->
         <div
           class="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm flex flex-col overflow-hidden transition-colors duration-200"
         >
-          <div class="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div
+            class="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+          >
             <div class="flex justify-between items-center mb-4">
-              <h2 id="tableTitle" class="text-lg font-bold text-gray-700 dark:text-gray-200">
+              <h2
+                id="tableTitle"
+                class="text-lg font-bold text-gray-700 dark:text-gray-200"
+              >
                 Select a Collection
               </h2>
               <span
                 id="countBadge"
                 class="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full"
-                >0 items</span
               >
+                0 items
+              </span>
             </div>
 
+            <!-- Filters & Search Toolbar -->
             <div class="flex gap-2">
               <div class="relative flex-1">
                 <i
@@ -139,17 +158,22 @@
                 <input
                   type="text"
                   id="searchBox"
-                  placeholder="Search..."
+                  placeholder="Search records..."
                   class="w-full border dark:border-gray-600 pl-10 p-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 dark:text-white"
                   oninput="applyFilters()"
                 />
               </div>
 
-              <div class="flex border dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-700">
+              <div
+                class="flex border dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-700"
+              >
                 <select
                   id="filterDateType"
                   class="bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-200 text-xs font-bold px-2 py-2 outline-none border-r dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 cursor-pointer"
-                  onchange="populateYearFilter(); applyFilters()"
+                  onchange="
+                    populateYearFilter();
+                    applyFilters();
+                  "
                 >
                   <option value="expiry">📅 Expiry</option>
                   <option value="cert">📜 Cert Year</option>
@@ -162,6 +186,7 @@
                   <option value="all">All</option>
                 </select>
               </div>
+
               <select
                 id="filterField"
                 class="border dark:border-gray-600 p-2 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-white outline-none"
@@ -173,6 +198,7 @@
                 <option value="cert">Cert No</option>
                 <option value="lot">Lot No</option>
               </select>
+
               <select
                 id="sortOrder"
                 class="border dark:border-gray-600 p-2 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-white outline-none"
@@ -187,6 +213,7 @@
             </div>
           </div>
 
+          <!-- Items Table -->
           <div class="flex-1 overflow-auto bg-white dark:bg-gray-800">
             <table class="w-full text-left">
               <thead
@@ -200,9 +227,15 @@
                   <th class="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody id="tableBody" class="divide-y divide-gray-100 dark:divide-gray-700 text-sm">
+              <tbody
+                id="tableBody"
+                class="divide-y divide-gray-100 dark:divide-gray-700 text-sm"
+              >
                 <tr>
-                  <td colspan="5" class="p-10 text-center text-gray-400 dark:text-gray-500">
+                  <td
+                    colspan="5"
+                    class="p-10 text-center text-gray-400 dark:text-gray-500"
+                  >
                     Select a folder to view data
                   </td>
                 </tr>
@@ -212,6 +245,7 @@
         </div>
       </div>
 
+      <!-- TAB 2: ADD / UPLOAD (MANUAL + AI) -->
       <div
         id="tab-upload"
         class="hidden h-full flex justify-center items-start pt-5 overflow-y-auto"
@@ -229,7 +263,9 @@
 
           <div class="flex-1">
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-bold text-gray-800 dark:text-white">New Entry</h3>
+              <h3 class="text-xl font-bold text-gray-800 dark:text-white">
+                Certificate Entry
+              </h3>
               <button
                 onclick="resetUpload()"
                 class="text-xs text-blue-500 hover:underline dark:text-blue-400"
@@ -237,6 +273,8 @@
                 Clear Form
               </button>
             </div>
+
+            <!-- Ownership Category Toggle -->
             <div class="flex mb-4">
               <button
                 onclick="setUploadType(false)"
@@ -253,102 +291,195 @@
                 🔧 Client
               </button>
             </div>
-            
+
+            <!-- Unified Drop Zone for PDF Attachment -->
             <div
               id="dropZone"
               class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition mb-4 relative"
               onclick="document.getElementById('fileInput').click()"
             >
               <i class="fas fa-file-pdf text-3xl text-gray-400 mb-2"></i>
-              <p class="text-sm text-gray-600 dark:text-gray-300" id="fileNameDisplay">
+              <p
+                class="text-sm text-gray-600 dark:text-gray-300"
+                id="fileNameDisplay"
+              >
                 Click or <b>Drag & Drop</b> PDF(s) here
               </p>
-              <p class="text-xs text-gray-400 mt-1">Supports Batch Upload</p>
+              <p class="text-xs text-gray-400 mt-1" id="fileSubtext">
+                Attach PDF to save manually, or run AI extraction below
+              </p>
               <input
                 type="file"
                 id="fileInput"
                 class="hidden"
                 accept="application/pdf"
                 multiple
-                onchange="handleFileSelect()"
+                onchange="handleLocalFileSelect()"
               />
             </div>
 
+            <!-- AI Extraction Trigger Button -->
+            <div class="mb-5">
+              <button
+                type="button"
+                id="btnRunAI"
+                onclick="runAIBatchExtraction()"
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-lg font-bold shadow transition flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <span>Auto-Extract</span>
+              </button>
+            </div>
+
+            <div class="relative flex py-2 items-center mb-4">
+              <div
+                class="flex-grow border-t border-gray-200 dark:border-gray-700"
+              ></div>
+              <span
+                class="flex-shrink mx-4 text-gray-400 text-xs uppercase font-semibold"
+              >
+                Or Enter / Edit Fields Manually
+              </span>
+              <div
+                class="flex-grow border-t border-gray-200 dark:border-gray-700"
+              ></div>
+            </div>
+
+            <!-- Manual Entry Form Inputs -->
             <div class="grid grid-cols-2 gap-3 mb-4">
               <div class="col-span-2">
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Serial No</label
-                ><input
-                  id="upSerial"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
-                  oninput="updatePreview()"
-                />
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Equipment Type / Folder *</label
+                >
+                <select
+                  id="upCollectionSelect"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
+                  onchange="updatePreview()"
+                >
+                  <option value="GD">Gas Detector (GD)</option>
+                  <option value="EEBD">EEBD</option>
+                  <option value="HARNESS">Harness</option>
+                  <option value="ABSORBER">Absorber</option>
+                  <option value="SMOKE HOOD">Smoke Hood</option>
+                  <option value="SCBA">SCBA</option>
+                  <option value="AREA MONITOR">Area Monitor</option>
+                  <option value="RESCUE KIT">Rescue Kit</option>
+                </select>
               </div>
+
               <div class="col-span-2">
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Model</label
-                ><input
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Serial No *</label
+                >
+                <input
+                  id="upSerial"
+                  placeholder="e.g. 102938"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
+                  oninput="updatePreview()"
+                />
+              </div>
+
+              <div class="col-span-2">
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Model Description</label
+                >
+                <input
                   id="upModel"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g. Honeywell MicroClip XL"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
                   oninput="updatePreview()"
                 />
               </div>
+
               <div>
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Cal Date</label
-                ><input
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Cal / Inspection Date</label
+                >
+                <input
                   id="upCal"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
                   placeholder="YYYY-MM-DD"
                   oninput="updatePreview()"
                 />
               </div>
+
               <div>
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Exp Date</label
-                ><input
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Exp Date</label
+                >
+                <input
                   id="upExp"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
                   placeholder="YYYY-MM-DD"
                   oninput="updatePreview()"
                 />
               </div>
+
               <div>
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Cert No</label
-                ><input
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Cert No</label
+                >
+                <input
                   id="upCert"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g. CHSB/CAL/2026/001.SRV"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
                   oninput="updatePreview()"
                 />
               </div>
+
               <div>
-                <label class="text-xs font-bold text-gray-500 dark:text-gray-400">Lot No</label
-                ><input
+                <label
+                  class="text-xs font-bold text-gray-500 dark:text-gray-400"
+                  >Lot No</label
+                >
+                <input
                   id="upLot"
-                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white"
+                  placeholder="Optional Lot #"
+                  class="w-full border dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-700 dark:text-white outline-none"
                   oninput="updatePreview()"
                 />
               </div>
             </div>
-            <input type="hidden" id="upCollection" />
+
             <button
               onclick="saveManual()"
               id="btnSave"
-              class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 shadow transition"
+              class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 shadow transition flex items-center justify-center gap-2"
             >
-              Save Manual Entry
+              <i class="fas fa-floppy-disk"></i>
+              <span>Save Manual Entry</span>
             </button>
           </div>
+
+          <!-- Preview Sidebar -->
           <div
             class="w-80 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 flex flex-col gap-4"
           >
-            <h4 class="font-bold text-gray-600 dark:text-gray-300 text-sm">Preview</h4>
+            <h4 class="font-bold text-gray-600 dark:text-gray-300 text-sm">
+              Live Preview
+            </h4>
             <div
               id="pdfPreviewFrame"
-              class="h-40 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center text-gray-400 dark:text-gray-300 text-xs overflow-hidden"
+              class="h-40 bg-gray-200 dark:bg-gray-600 rounded flex flex-col items-center justify-center text-gray-500 dark:text-gray-300 text-xs p-3 text-center"
             >
-              No PDF Selected
+              <i
+                class="fas fa-file-circle-question text-3xl mb-2 text-gray-400"
+              ></i>
+              <span>No PDF Attached</span>
             </div>
+
             <div>
-              <label class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block"
-                >NFC Text (Copy this)</label
+              <label
+                class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block"
               >
+                NFC Payload (Click to copy)
+              </label>
               <div
                 id="nfcPreview"
                 class="nfc-box break-all select-all cursor-pointer"
@@ -358,21 +489,24 @@
                 (Fill details to generate)
               </div>
             </div>
+
             <div>
-              <label class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block"
-                >QR Link</label
+              <label
+                class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block"
+                >QR Web Link</label
               >
               <div
                 id="qrLinkPreview"
                 class="text-xs text-blue-600 dark:text-blue-400 break-all bg-white dark:bg-gray-800 p-2 rounded border border-gray-100 dark:border-gray-600"
               >
-                ...
+                https://qrcertificates-30ddb.web.app/?id=...
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- DETAIL MODAL -->
       <div
         id="detailModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
@@ -386,46 +520,65 @@
           >
             <i class="fas fa-times text-xl"></i>
           </button>
-          <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Entry Details</h3>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            Entry Details
+          </h3>
           <div class="space-y-3">
             <div>
-              <label class="text-xs font-bold text-gray-400">SERIAL NO</label
-              ><input
+              <label class="text-xs font-bold text-gray-400">SERIAL NO</label>
+              <input
                 id="detSerial"
                 class="w-full border dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-600 dark:text-white"
                 readonly
               />
             </div>
             <div>
-              <label class="text-xs font-bold text-gray-400">MODEL</label
-              ><input id="detModel" class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white" />
+              <label class="text-xs font-bold text-gray-400">MODEL</label>
+              <input
+                id="detModel"
+                class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white"
+              />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs font-bold text-gray-400">CAL DATE</label
-                ><input id="detCal" class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white" />
+                <label class="text-xs font-bold text-gray-400">CAL DATE</label>
+                <input
+                  id="detCal"
+                  class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white"
+                />
               </div>
               <div>
-                <label class="text-xs font-bold text-gray-400">EXP DATE</label
-                ><input
+                <label class="text-xs font-bold text-gray-400">EXP DATE</label>
+                <input
                   id="detExp"
                   class="w-full border dark:border-gray-600 p-2 rounded text-red-600 dark:text-red-400 dark:bg-gray-700"
                 />
               </div>
               <div>
-                <label class="text-xs font-bold text-gray-400">CERT NO</label
-                ><input id="detCert" class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white" />
+                <label class="text-xs font-bold text-gray-400">CERT NO</label>
+                <input
+                  id="detCert"
+                  class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white"
+                />
               </div>
               <div>
-                <label class="text-xs font-bold text-gray-400">LOT NO</label
-                ><input id="detLot" class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white" />
+                <label class="text-xs font-bold text-gray-400">LOT NO</label>
+                <input
+                  id="detLot"
+                  class="w-full border dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-white"
+                />
               </div>
             </div>
             <div>
               <label class="text-xs font-bold text-gray-400"
                 >LAST UPDATED</label
               >
-              <div id="detUpdated" class="text-sm text-gray-600 dark:text-gray-300">-</div>
+              <div
+                id="detUpdated"
+                class="text-sm text-gray-600 dark:text-gray-300"
+              >
+                -
+              </div>
             </div>
           </div>
           <div class="flex gap-2 mt-4">
@@ -433,18 +586,20 @@
               id="btnViewPdf"
               href="#"
               target="_blank"
-              onclick="return validateLink(this)"
+              onclick="return validateLink(this);"
               class="flex-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 py-2 rounded text-center font-bold hover:bg-blue-200 dark:hover:bg-blue-800"
-              ><i class="fas fa-file-pdf mr-2"></i> PDF</a
             >
+              <i class="fas fa-file-pdf mr-2"></i> PDF
+            </a>
             <a
               id="btnViewQr"
               href="#"
               target="_blank"
-              onclick="return validateLink(this)"
+              onclick="return validateLink(this);"
               class="flex-1 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 rounded text-center font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
-              ><i class="fas fa-qrcode mr-2"></i> QR</a
             >
+              <i class="fas fa-qrcode mr-2"></i> QR
+            </a>
           </div>
           <div class="flex gap-2 mt-4">
             <button
@@ -456,7 +611,7 @@
           </div>
           <div class="mt-4 pt-4 border-t dark:border-gray-700">
             <label class="text-xs font-bold text-gray-400 block mb-1"
-              >NFC TEXT</label
+              >NFC PAYLOAD</label
             >
             <div
               id="detNfc"
@@ -467,6 +622,7 @@
         </div>
       </div>
 
+      <!-- BATCH REVIEW MODAL -->
       <div
         id="batchReviewModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
@@ -513,6 +669,7 @@
         </div>
       </div>
 
+      <!-- FULL SCREEN PROCESSING OVERLAY -->
       <div
         id="loading"
         class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90 hidden flex items-center justify-center z-50 transition-colors duration-200"
@@ -521,8 +678,12 @@
           <i
             class="fas fa-circle-notch fa-spin text-5xl text-blue-600 mb-4"
           ></i>
-          <h3 class="text-xl font-bold text-gray-800 dark:text-white">Processing...</h3>
-          <p id="loadingText" class="text-gray-500 dark:text-gray-400 mt-2">Please wait</p>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white">
+            Processing...
+          </h3>
+          <p id="loadingText" class="text-gray-500 dark:text-gray-400 mt-2">
+            Please wait
+          </p>
         </div>
       </div>
     </main>
@@ -532,102 +693,139 @@
       let currentFile = null;
       let isServiceUpload = false;
 
-      let rawData = []; // Store for filtering
+      let rawData = [];
       let currentCollectionName = "";
-      let batchResults = []; // Store batch results
+      let batchResults = [];
 
       // --- Dark Mode Logic ---
       function initTheme() {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
+        if (
+          localStorage.theme === "dark" ||
+          (!("theme" in localStorage) &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
           updateThemeIcon(true);
         } else {
-          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.remove("dark");
           updateThemeIcon(false);
         }
       }
 
       function toggleTheme() {
-        if (document.documentElement.classList.contains('dark')) {
-          document.documentElement.classList.remove('dark');
-          localStorage.theme = 'light';
+        if (document.documentElement.classList.contains("dark")) {
+          document.documentElement.classList.remove("dark");
+          localStorage.theme = "light";
           updateThemeIcon(false);
         } else {
-          document.documentElement.classList.add('dark');
-          localStorage.theme = 'dark';
+          document.documentElement.classList.add("dark");
+          localStorage.theme = "dark";
           updateThemeIcon(true);
         }
       }
 
       function updateThemeIcon(isDark) {
-        const icon = document.getElementById('themeIcon');
-        if(isDark) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
+        const icon = document.getElementById("themeIcon");
+        if (isDark) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
         } else {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
         }
       }
-      
+
       initTheme();
 
-      // --- Drag and Drop Logic ---
+      // --- Drag and Drop File Handlers ---
       function initDragAndDrop() {
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+          dropZone.addEventListener(eventName, preventDefaults, false);
         });
 
         function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
         }
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
+        ["dragenter", "dragover"].forEach((eventName) => {
+          dropZone.addEventListener(eventName, highlight, false);
         });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
+        ["dragleave", "drop"].forEach((eventName) => {
+          dropZone.addEventListener(eventName, unhighlight, false);
         });
 
-        function highlight(e) {
-            dropZone.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-gray-600');
-            dropZone.classList.remove('border-gray-300', 'dark:border-gray-600');
+        function highlight() {
+          dropZone.classList.add(
+            "border-blue-500",
+            "bg-blue-50",
+            "dark:bg-gray-600",
+          );
+          dropZone.classList.remove("border-gray-300", "dark:border-gray-600");
         }
 
-        function unhighlight(e) {
-            dropZone.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-gray-600');
-            dropZone.classList.add('border-gray-300', 'dark:border-gray-600');
+        function unhighlight() {
+          dropZone.classList.remove(
+            "border-blue-500",
+            "bg-blue-50",
+            "dark:bg-gray-600",
+          );
+          dropZone.classList.add("border-gray-300", "dark:border-gray-600");
         }
 
-        dropZone.addEventListener('drop', handleDrop, false);
+        dropZone.addEventListener("drop", handleDrop, false);
 
         function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            // Assign dropped files to the file input
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileSelect(); // Trigger the existing logic
-            }
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length > 0) {
+            fileInput.files = files;
+            handleLocalFileSelect();
+          }
         }
       }
 
-      document.addEventListener('DOMContentLoaded', initDragAndDrop);
+      document.addEventListener("DOMContentLoaded", initDragAndDrop);
 
-      // --- NEW: Helper to prevent broken link clicks ---
-      function validateLink(el) {
-        const href = el.getAttribute('href');
-        if (!href || href === '#' || href === 'null') {
-            alert("File/Link not available for this record.");
-            return false; // Prevent navigation
+      // --- Select Local PDF Without Triggering AI ---
+      function handleLocalFileSelect() {
+        const files = document.getElementById("fileInput").files;
+        if (!files.length) return;
+
+        currentFile = files[0];
+        const display = document.getElementById("fileNameDisplay");
+        const subtext = document.getElementById("fileSubtext");
+        const preview = document.getElementById("pdfPreviewFrame");
+
+        if (files.length === 1) {
+          display.innerHTML = `<span class="text-blue-600 dark:text-blue-400 font-bold">${currentFile.name}</span> selected`;
+          subtext.innerText = `${(currentFile.size / 1024).toFixed(1)} KB attached`;
+          preview.innerHTML = `
+            <i class="fas fa-file-pdf text-4xl mb-2 text-red-500"></i>
+            <span class="font-bold truncate max-w-xs">${currentFile.name}</span>
+            <span class="text-xs text-gray-400">Attached & Ready</span>
+          `;
+        } else {
+          display.innerHTML = `<span class="text-purple-600 font-bold">${files.length} PDFs</span> attached for Batch AI`;
+          subtext.innerText = 'Click "Auto-Extract with AI" to process';
+          preview.innerHTML = `
+            <i class="fas fa-copy text-4xl mb-2 text-purple-500"></i>
+            <span class="font-bold">${files.length} Files Ready</span>
+          `;
         }
-        return true; // Allow navigation
+      }
+
+      function validateLink(el) {
+        const href = el.getAttribute("href");
+        if (!href || href === "#" || href === "null") {
+          alert("File/Link not available for this record.");
+          return false;
+        }
+        return true;
       }
 
       function switchTab(tab) {
@@ -637,16 +835,20 @@
         document
           .getElementById("tab-upload")
           .classList.toggle("hidden", tab !== "upload");
-        
+
         const btnDash = document.getElementById("btn-dashboard");
         const btnUp = document.getElementById("btn-upload");
 
         if (tab === "dashboard") {
-            btnDash.className = "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition dark:text-blue-400 dark:border-blue-400";
-            btnUp.className = "px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition dark:text-gray-400 dark:hover:text-blue-400";
+          btnDash.className =
+            "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition dark:text-blue-400 dark:border-blue-400";
+          btnUp.className =
+            "px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition dark:text-gray-400 dark:hover:text-blue-400";
         } else {
-            btnDash.className = "px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition dark:text-gray-400 dark:hover:text-blue-400";
-            btnUp.className = "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition dark:text-blue-400 dark:border-blue-400";
+          btnDash.className =
+            "px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition dark:text-gray-400 dark:hover:text-blue-400";
+          btnUp.className =
+            "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition dark:text-blue-400 dark:border-blue-400";
         }
       }
 
@@ -665,6 +867,7 @@
           s.className =
             "flex-1 py-2 rounded-r-md text-sm font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition";
         }
+        updatePreview();
       }
 
       async function init() {
@@ -675,13 +878,13 @@
             .map(
               (c) =>
                 `<button onclick="loadCollection('${c}')" class="w-full text-left px-3 py-2 rounded text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-200 text-sm transition flex items-center">
-                        <i class="fas ${
-                          c.includes("SERVICE")
-                            ? "fa-tools text-purple-400"
-                            : "fa-folder text-yellow-400"
-                        } mr-2"></i> 
-                        ${c.replace("_SERVICE", " (Client)")}
-                    </button>`
+                  <i class="fas ${
+                    c.includes("SERVICE")
+                      ? "fa-tools text-purple-400"
+                      : "fa-folder text-yellow-400"
+                  } mr-2"></i> 
+                  ${c.replace("_SERVICE", " (Client)")}
+                </button>`,
             )
             .join("");
         } catch (e) {
@@ -693,18 +896,14 @@
         currentCollectionName = col;
         document.getElementById("tableTitle").innerText = col.replace(
           "_SERVICE",
-          " (Service)"
+          " (Service)",
         );
-        document.getElementById(
-          "tableBody"
-        ).innerHTML = `<tr><td colspan="5" class="p-10 text-center dark:text-gray-300"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>`;
+        document.getElementById("tableBody").innerHTML =
+          `<tr><td colspan="5" class="p-10 text-center dark:text-gray-300"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>`;
         try {
           const res = await axios.get(`${API}/api/collection/${col}`);
           rawData = res.data.data;
-           
-          // Populate years immediately when data loads
           populateYearFilter();
-
           applyFilters();
         } catch (e) {
           console.error(e);
@@ -714,39 +913,33 @@
       function populateYearFilter() {
         const dateType = document.getElementById("filterDateType").value;
         const yearSelect = document.getElementById("filterYear");
-        const currentVal = yearSelect.value; 
-
+        const currentVal = yearSelect.value;
         yearSelect.innerHTML = '<option value="all">All</option>';
-        
+
         const years = new Set();
+        rawData.forEach((item) => {
+          let y = null;
+          if (dateType === "expiry") {
+            const dateStr = item.expiry_date || item.exp;
+            if (dateStr) y = new Date(dateStr).getFullYear();
+          } else if (dateType === "cert") {
+            const certStr = item.cert || "";
+            const match = certStr.match(/20\d{2}/);
+            if (match) y = parseInt(match[0]);
+          }
 
-        rawData.forEach(item => {
-            let y = null;
-            
-            if (dateType === "expiry") {
-                const dateStr = item.expiry_date || item.exp;
-                if (dateStr) y = new Date(dateStr).getFullYear();
-            } 
-            else if (dateType === "cert") {
-                const certStr = item.cert || "";
-                const match = certStr.match(/20\d{2}/); 
-                if (match) {
-                    y = parseInt(match[0]);
-                }
-            }
-
-            if (y && !isNaN(y) && y > 2000 && y < 2100) {
-                years.add(y);
-            }
+          if (y && !isNaN(y) && y > 2000 && y < 2100) {
+            years.add(y);
+          }
         });
 
         const sortedYears = Array.from(years).sort((a, b) => a - b);
-        sortedYears.forEach(y => {
-            const opt = document.createElement("option");
-            opt.value = y;
-            opt.innerText = y;
-            if (String(y) === currentVal) opt.selected = true;
-            yearSelect.appendChild(opt);
+        sortedYears.forEach((y) => {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.innerText = y;
+          if (String(y) === currentVal) opt.selected = true;
+          yearSelect.appendChild(opt);
         });
       }
 
@@ -754,7 +947,6 @@
         const query = document.getElementById("searchBox").value.toLowerCase();
         const field = document.getElementById("filterField").value;
         const sort = document.getElementById("sortOrder").value;
-        
         const yearFilter = document.getElementById("filterYear").value;
         const dateType = document.getElementById("filterDateType").value;
 
@@ -763,7 +955,7 @@
           if (!query) matchesSearch = true;
           else if (field === "all")
             matchesSearch = Object.values(item).some((val) =>
-              String(val).toLowerCase().includes(query)
+              String(val).toLowerCase().includes(query),
             );
           else
             matchesSearch = String(item[field] || "")
@@ -773,12 +965,11 @@
           let matchesYear = true;
           if (yearFilter !== "all") {
             if (dateType === "expiry") {
-                const d = item.expiry_date || item.exp;
-                if (!d || !d.startsWith(yearFilter)) matchesYear = false; 
-            } 
-            else if (dateType === "cert") {
-                const c = item.cert || "";
-                if (!c.includes(yearFilter)) matchesYear = false;
+              const d = item.expiry_date || item.exp;
+              if (!d || !d.startsWith(yearFilter)) matchesYear = false;
+            } else if (dateType === "cert") {
+              const c = item.cert || "";
+              if (!c.includes(yearFilter)) matchesYear = false;
             }
           }
 
@@ -804,9 +995,8 @@
 
       function renderTable(data) {
         const tbody = document.getElementById("tableBody");
-        document.getElementById(
-          "countBadge"
-        ).innerText = `${data.length} items`;
+        document.getElementById("countBadge").innerText =
+          `${data.length} items`;
         if (data.length === 0) {
           tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 dark:text-gray-500">No records found</td></tr>`;
           return;
@@ -818,26 +1008,26 @@
               ? new Date(item.last_updated).toLocaleDateString()
               : "-";
             return `
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700 cursor-pointer" onclick="showDetails(${safeItem})">
-                    <td class="px-6 py-3 font-medium text-gray-900 dark:text-white">${
-                      item.serial
-                    }</td>
-                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">${item.model}</td>
-                    <td class="px-6 py-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">${
-                      item.expiry_date
-                    }</span></td>
-                    <td class="px-6 py-3 text-xs text-gray-500 dark:text-gray-400">${updated}</td>
-                    <td class="px-6 py-3 text-right space-x-3" onclick="event.stopPropagation()">
-                        ${
-                          item.pdf_url
-                            ? `<a href="${item.pdf_url}" target="_blank" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" title="PDF"><i class="fas fa-file-pdf"></i></a>`
-                            : ""
-                        }
-                        <button onclick="deleteItem('${currentCollectionName}', '${
-              item.id
-            }')" class="text-red-400 hover:text-red-600 dark:hover:text-red-300" title="Delete"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700 cursor-pointer" onclick="showDetails(${safeItem})">
+                <td class="px-6 py-3 font-medium text-gray-900 dark:text-white">${item.serial}</td>
+                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">${item.model}</td>
+                <td class="px-6 py-3">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    ${item.expiry_date}
+                  </span>
+                </td>
+                <td class="px-6 py-3 text-xs text-gray-500 dark:text-gray-400">${updated}</td>
+                <td class="px-6 py-3 text-right space-x-3" onclick="event.stopPropagation()">
+                  ${
+                    item.pdf_url
+                      ? `<a href="${item.pdf_url}" target="_blank" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" title="PDF"><i class="fas fa-file-pdf"></i></a>`
+                      : ""
+                  }
+                  <button onclick="deleteItem('${currentCollectionName}', '${
+                    item.id
+                  }')" class="text-red-400 hover:text-red-600 dark:hover:text-red-300" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
             `;
           })
           .join("");
@@ -898,113 +1088,101 @@
         }
       }
 
-async function handleFileSelect() {
-    const files = document.getElementById("fileInput").files;
-    if (!files.length) return;
+      // --- AUTO EXTRACT WITH AI (ONLY RUNS WHEN CLICKED) ---
+      async function runAIBatchExtraction() {
+        const files = document.getElementById("fileInput").files;
+        if (!files.length) {
+          alert("Please select or drop at least one PDF file first.");
+          return;
+        }
 
-    document.getElementById("loading").classList.remove("hidden");
-    document.getElementById("btnReviewBatch").classList.add("hidden"); 
+        document.getElementById("loading").classList.remove("hidden");
+        document.getElementById("btnReviewBatch").classList.add("hidden");
 
-    batchResults = []; 
-    let processedCount = 0;
+        batchResults = [];
 
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
-        try {
-            // STEP 1: Extraction
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          try {
             const extractFd = new FormData();
             extractFd.append("file", file);
             extractFd.append("is_service", isServiceUpload);
 
-            document.getElementById("loadingText").innerText = `Analyzing PDF: ${file.name}...`;
+            document.getElementById("loadingText").innerText =
+              `Extracting items from ${file.name}...`;
             const resExt = await axios.post(`${API}/extract`, extractFd);
-            
+
             if (resExt.data.status !== "success") {
-                console.error("Extraction failed for " + file.name);
-                continue;
+              console.error("Extraction failed for " + file.name);
+              continue;
             }
 
-            const itemsFound = resExt.data.data; 
+            const itemsFound = resExt.data.data;
 
-            // STEP 2: Iterate through every PPE item found
             for (const item of itemsFound) {
-                document.getElementById("loadingText").innerText = 
-                    `Saving Item ${item.serial} from Page ${item.page}...`;
+              document.getElementById("loadingText").innerText =
+                `Saving Item ${item.serial} to ${item.target_collection}...`;
 
-                const saveFd = new FormData();
-                
-                /* FIX 1: Use the split page for the PDF link instead of the whole file */
-                // The backend now provides a local path to the single-page cert
-                saveFd.append("file", file); 
-                
-                saveFd.append("serial", item.serial);
-                saveFd.append("model", item.model);
-                saveFd.append("cal", item.cal);
-                saveFd.append("exp", item.exp);
-                saveFd.append("cert", item.cert);
-                saveFd.append("lot", item.lot);
-                saveFd.append("page", item.page); // Add page for tracking
+              const saveFd = new FormData();
+              saveFd.append("file", file);
+              saveFd.append("serial", item.serial);
+              saveFd.append("model", item.model);
+              saveFd.append("cal", item.cal);
+              saveFd.append("exp", item.exp);
+              saveFd.append("cert", item.cert);
+              saveFd.append("lot", item.lot);
+              saveFd.append("collection", item.target_collection);
 
-                /* FIX 2: Use the SPECIFIC collection for THIS item */
-                // This prevents Absorbers from being put in the Harness folder
-                saveFd.append("collection", item.target_collection); 
+              const saveRes = await axios.post(`${API}/save`, saveFd);
 
-                // STEP 3: Save
-                const saveRes = await axios.post(`${API}/save`, saveFd);
-
-                batchResults.push({
-                    ...item,
-                    collection: item.target_collection, // Use item-specific folder
-                    pdf_url: saveRes.data.pdf_url, 
-                    qr_link: saveRes.data.web_link,
-                    qr_image_url: saveRes.data.qr_image_url,
-                    last_updated: new Date().toISOString(),
-                });
+              batchResults.push({
+                ...item,
+                collection: item.target_collection,
+                pdf_url: saveRes.data.pdf_url,
+                qr_link: saveRes.data.web_link,
+                qr_image_url: saveRes.data.qr_image_url,
+                last_updated: new Date().toISOString(),
+              });
             }
 
-            processedCount++;
-            
             if (itemsFound.length > 0) {
-                const last = itemsFound[itemsFound.length - 1];
-                document.getElementById("upSerial").value = last.serial;
-                document.getElementById("upModel").value = last.model;
-                document.getElementById("upCal").value = last.cal;
-                document.getElementById("upExp").value = last.exp;
-                document.getElementById("upCert").value = last.cert;
-                updatePreview();
+              const last = itemsFound[itemsFound.length - 1];
+              document.getElementById("upSerial").value = last.serial;
+              document.getElementById("upModel").value = last.model;
+              document.getElementById("upCal").value = last.cal;
+              document.getElementById("upExp").value = last.exp;
+              document.getElementById("upCert").value = last.cert;
+              updatePreview();
             }
-
-        } catch (e) {
+          } catch (e) {
             console.error("Error processing " + file.name, e);
             alert(`Error on ${file.name}: ${e.message}`);
+          }
         }
-    }
 
-    document.getElementById("loading").classList.add("hidden");
-    document.getElementById("btnReviewBatch").classList.remove("hidden"); 
-    document.getElementById("fileInput").value = "";
-
-    openBatchReview();
-}
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("btnReviewBatch").classList.remove("hidden");
+        openBatchReview();
+      }
 
       function openBatchReview() {
         const tbody = document.getElementById("batchReviewBody");
         if (batchResults.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center dark:text-gray-300">No results yet.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center dark:text-gray-300">No results found or extraction failed.</td></tr>`;
         } else {
           tbody.innerHTML = batchResults
             .map((item) => {
               const safeItem = JSON.stringify(item).replace(/"/g, "&quot;");
               return `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b dark:border-gray-600" onclick="showDetails(${safeItem})">
-                        <td class="px-4 py-2 font-bold">${item.serial}</td>
-                        <td class="px-4 py-2">${item.model}</td>
-                        <td class="px-4 py-2">${item.cal}</td>
-                        <td class="px-4 py-2">${item.exp}</td>
-                        <td class="px-4 py-2 text-green-600 dark:text-green-400 font-bold"><i class="fas fa-check-circle"></i> Saved</td>
-                    </tr>
-                    `;
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b dark:border-gray-600" onclick="showDetails(${safeItem})">
+                  <td class="px-4 py-2 font-bold">${item.serial}</td>
+                  <td class="px-4 py-2">${item.model}</td>
+                  <td class="px-4 py-2">${item.cal}</td>
+                  <td class="px-4 py-2">${item.exp}</td>
+                  <td class="px-4 py-2 text-green-600 dark:text-green-400 font-bold"><i class="fas fa-check-circle"></i> Saved</td>
+                </tr>
+              `;
             })
             .join("");
         }
@@ -1017,24 +1195,54 @@ async function handleFileSelect() {
         const cal = document.getElementById("upCal").value || "";
         const exp = document.getElementById("upExp").value || "";
         const link = `https://qrcertificates-30ddb.web.app/?id=${encodeURIComponent(
-          s
+          s,
         )}`;
         document.getElementById("qrLinkPreview").innerText = link;
         const nfc = `${link}\nCert:${c}\nSN:${s}\nCal:${cal}\nExp:${exp}`;
         document.getElementById("nfcPreview").innerText = nfc;
       }
 
+      // --- DIRECT MANUAL SAVE (NO AI EXTRACTION CALLED) ---
       async function saveManual() {
-        const serial = document.getElementById("upSerial").value;
+        const serial = document.getElementById("upSerial").value.trim();
         if (!serial) {
-          alert("Serial Number is required");
+          alert("Serial Number is required.");
+          document.getElementById("upSerial").focus();
           return;
         }
+
         const files = document.getElementById("fileInput").files;
-        if (files.length > 0) {
-          handleFileSelect();
-        } else {
-          alert("Please select a PDF file to attach to this record.");
+        if (!files.length) {
+          alert("Please attach a PDF file for this certificate.");
+          return;
+        }
+
+        const baseType = document.getElementById("upCollectionSelect").value;
+        const targetCollection = baseType + (isServiceUpload ? "_SERVICE" : "");
+
+        const fd = new FormData();
+        fd.append("file", files[0]);
+        fd.append("serial", serial);
+        fd.append("model", document.getElementById("upModel").value.trim());
+        fd.append("cal", document.getElementById("upCal").value.trim());
+        fd.append("exp", document.getElementById("upExp").value.trim());
+        fd.append("cert", document.getElementById("upCert").value.trim());
+        fd.append("lot", document.getElementById("upLot").value.trim());
+        fd.append("collection", targetCollection);
+
+        document.getElementById("loading").classList.remove("hidden");
+        document.getElementById("loadingText").innerText =
+          `Saving ${serial} directly to ${targetCollection}...`;
+
+        try {
+          const res = await axios.post(`${API}/save`, fd);
+          alert(`Successfully saved ${serial} to ${targetCollection}!`);
+          resetUpload();
+        } catch (e) {
+          console.error("Save failed", e);
+          alert("Save failed: " + (e.response?.data?.detail || e.message));
+        } finally {
+          document.getElementById("loading").classList.add("hidden");
         }
       }
 
@@ -1042,8 +1250,12 @@ async function handleFileSelect() {
         document.getElementById("fileInput").value = "";
         document.getElementById("fileNameDisplay").innerHTML =
           "Click or <b>Drag & Drop</b> PDF(s) here";
-        document.getElementById("pdfPreviewFrame").innerHTML =
-          "No PDF Selected";
+        document.getElementById("fileSubtext").innerText =
+          "Attach PDF to save manually, or run AI extraction below";
+        document.getElementById("pdfPreviewFrame").innerHTML = `
+          <i class="fas fa-file-circle-question text-3xl mb-2 text-gray-400"></i>
+          <span>No PDF Attached</span>
+        `;
         document
           .querySelectorAll("#tab-upload input:not([type=hidden])")
           .forEach((i) => (i.value = ""));
@@ -1055,11 +1267,13 @@ async function handleFileSelect() {
       function copyNfc() {
         copyText("nfcPreview");
       }
+
       function copyText(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text);
         alert("Copied to clipboard!");
       }
+
       function closeModal(id) {
         document.getElementById(id).classList.add("hidden");
       }
