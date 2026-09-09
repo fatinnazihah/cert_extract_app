@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cert-extract-app
+    runtime: docker
+    plan: free
+    region: singapore
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FIREBASE_BUCKET
+        sync: false
+      - key: FIREBASE_CREDENTIALS
+        sync: false
