@@ -220,3 +220,8 @@ async def save_record(
                     os.remove(temp_path)
                 except Exception:
                     pass
+
+# -- Health Check Endpoint ---
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
