@@ -4,6 +4,9 @@ services:
     runtime: docker
     plan: free
     region: singapore
+    rootDir: backend
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
     envVars:
       - key: GROQ_API_KEY
         sync: false

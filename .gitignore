@@ -1,1 +1,111 @@
+# ==============================================================================
+# ENVIRONMENT VARIABLES & SECRETS
+# ==============================================================================
+# Never commit local secrets, environment files, or live production configs
 .env
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase service account keys and authentication tokens
+serviceAccountKey.json
+*.pem
+
+# ==============================================================================
+# NODE.JS / REACT FRONTEND DEPENDENCIES & BUILDS
+# ==============================================================================
+# Dependencies installed via npm / yarn / pnpm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Vite production build artifacts
+dist/
+dist-ssr/
+*.local
+
+# Editor / Framework cache directories
+.eslintcache
+.stylelintcache
+.turbo/
+.vercel/
+
+# ==============================================================================
+# PYTHON / FASTAPI BACKEND DEPENDENCIES & VIRTUAL ENVIRONMENTS
+# ==============================================================================
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Bytecode, compiled Python files, and runtime cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & linting artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ==============================================================================
+# RUNTIME TEMPORARY FILES & GENERATED ASSETS
+# ==============================================================================
+# Temporary directories created by PDF splitters, QR generators, and OCR processing
+temp_pdfs/
+*/temp_pdfs/
+qrcodes/
+*/qrcodes/
+temp_split_certs/
+*/temp_split_certs/
+
+# ==============================================================================
+# OPERATING SYSTEM & IDE ARTIFACTS
+# ==============================================================================
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows thumbnail caches and directory configs
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

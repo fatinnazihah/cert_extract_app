@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.nfc-box {
+  font-family: monospace;
+  background: #f3f4f6;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px dashed #ccc;
+  font-size: 0.82rem;
+}
+
+.dark .nfc-box {
+  background: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
