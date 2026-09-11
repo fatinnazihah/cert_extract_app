@@ -221,7 +221,11 @@ async def save_record(
                 except Exception:
                     pass
 
-# -- Health Check Endpoint ---
+# --- HEALTH & ROOT ENDPOINTS (For UptimeRobot & Render Keep-Alive) ---
+@app.get("/")
+def root_ping():
+    return {"status": "online", "service": "CHSB CertExt API"}
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
